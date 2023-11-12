@@ -1,0 +1,410 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Flask API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Check if the API is running",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "text/plain": {
+                "example": "Hello"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/protected": {
+      "get": {
+        "summary": "Check if authentication is working",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "text/plain": {
+                "example": "Hello, Flask!"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Protected endpoint (requires authentication)",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "text/plain": {
+                "example": "Hello, Flask!"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "User login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "username": "example_user",
+                "password": "example_password"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Login successful!"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid username or password",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid username or password"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "summary": "User logout (requires authentication)",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful logout",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Logout successful!"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "summary": "User registration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "username": "new_user",
+                "email": "new_user@example.com",
+                "password": "new_password"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful registration",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Account created successfully!"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON or missing fields",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid JSON or missing fields"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/movies": {
+      "post": {
+        "summary": "Create a movie (requires authentication)",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "title": "Example Movie",
+                "release_date": "2023-01-01T00:00:00.000Z",
+                "average_rating": 8.5
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Movie created successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Movie created successfully"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get a list of movies",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "genre",
+            "in": "query",
+            "description": "Filter by genre",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "director",
+            "in": "query",
+            "description": "Filter by director",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "release_year",
+            "in": "query",
+            "description": "Filter by release year",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "search_query",
+            "in": "query",
+            "description": "Search query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "page": 1,
+                  "total_pages": 1,
+                  "total_movies": 1,
+                  "data": [
+                    {
+                      "title": "Example Movie",
+                      "release_date": "2023-01-01T00:00:00.000Z",
+                      "average_rating": 8.5
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/movies/{movie_id}": {
+      "get": {
+        "summary": "Get a single movie by ID",
+        "parameters": [
+          {
+            "name": "movie_id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the movie",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": {
+                    "title": "Example Movie",
+                    "release_date": "2023-01-01T00:00:00.000Z",
+                    "average_rating": 8.5
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Movie not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Movie not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a movie by ID (requires authentication)",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "movie_id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the movie",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "title": "Updated Movie",
+                "release_date": "2023-01-01T00:00:00.000Z",
+                "average_rating": 9
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful update",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Movie updated successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Movie not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Movie not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a movie by ID (requires authentication)",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "movie_id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the movie",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful deletion",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Movie deleted successfully"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Movie not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Movie not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "session": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  }
+}
