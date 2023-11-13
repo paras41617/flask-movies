@@ -58,3 +58,9 @@ Start the server
 ```bash
   python run.py
 ```
+
+### API Documentation
+
+Explore the API using Swagger UI:
+
+[![Swagger UI](https://img.shields.io/badge/Swagger-UI-orange?style=flat&logo=swagger)](https://paras41617.github.io/flask-movies/)
