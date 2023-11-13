@@ -1,7 +1,7 @@
 from flask_login import login_user, logout_user, login_required, current_user
 from app import app, db
 import datetime
-from app.models import User, Movie
+from app.models import User, Movie, Rating
 from flask import request, jsonify
 from .utils import hash_password, check_password_hash, is_valid_date
 
@@ -242,8 +242,14 @@ def update_movie(movie_id):
             # Extract JSON data from the request
             data = request.json
             
-            # Update the movie with the provided data
-            movie.update(**data)
+            # Update the movie attributes with the provided data
+            movie.title = data.get('title', movie.title)
+            movie.description = data.get('description', movie.description)
+            movie.release_date = data.get('release_date', movie.release_date)
+            movie.director = data.get('director', movie.director)
+            movie.genre = data.get('genre', movie.genre)
+            movie.ticket_price = data.get('ticket_price', movie.ticket_price)
+            movie.cast = data.get('cast', movie.cast)
             
             # Commit the changes to the database
             db.session.commit()
@@ -256,7 +262,7 @@ def update_movie(movie_id):
     else:
         # Return a JSON response if the movie is not found
         return jsonify({"message": "Movie not found"}), 404
-    
+        
 
 # Endpoint for deleting a movie by ID
 @app.route('/movies/<int:movie_id>', methods=['DELETE'])
@@ -283,3 +289,41 @@ def delete_movie(movie_id):
     else:
         # Return a JSON response if the movie is not found
         return jsonify({"message": "Movie not found"}), 404
+
+
+@app.route('/rate/<int:movie_id>', methods=['POST'])
+@login_required
+def rate(movie_id):
+    # Extract JSON data from the request
+    data = request.get_json()
+    
+    # Extract the rating value from the JSON data
+    rating_value = data.get('rating')
+
+    if(int(rating_value) > 10 or int(rating_value) < 0):
+        return jsonify({'error': 'Rating should be in the range of 1 to 10'}), 404
+    
+    # Query the database to get the movie by its ID
+    movie = Movie.query.get(movie_id)
+
+    # Check if the movie exists
+    if not movie:
+        # Return a JSON response if the movie is not found
+        return jsonify({'error': 'Movie not found'}), 404
+    
+    # Check if the user has already rated the movie
+    existing_rating = Rating.query.filter_by(user_id=current_user.id, movie_id=movie.id).first()
+
+    if existing_rating:
+        # If the user has already rated the movie, update the existing rating
+        existing_rating.rating = rating_value
+    else:
+        # If the user has not yet rated the movie, create a new rating
+        new_rating = Rating(rating=rating_value, user_id=current_user.id, movie_id=movie.id)
+        db.session.add(new_rating)
+
+    # Commit the changes to the database
+    db.session.commit()
+
+    # Return a JSON response indicating successful rating submission
+    return jsonify({'message': 'Rating submitted successfully'}), 200
